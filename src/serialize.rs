@@ -1,4 +1,5 @@
 pub mod bigint {
+    use std::prelude::v1::*;
     use std::fmt;
 
     use curv::arithmetic::traits::*;
@@ -31,6 +32,7 @@ pub mod bigint {
 }
 
 pub mod vecbigint {
+    use std::prelude::v1::*;
     use std::fmt;
 
     use curv::arithmetic::traits::*;

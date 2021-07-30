@@ -10,7 +10,7 @@
 
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
-
+use std::prelude::v1::*;
 use curv::arithmetic::traits::*;
 use curv::BigInt;
 use paillier::EncryptionKey;
