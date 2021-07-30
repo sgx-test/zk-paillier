@@ -10,13 +10,14 @@
 
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
+use std::prelude::v1::*;
 use std::iter;
 use std::ops::Shl;
 
 use curv::arithmetic::traits::*;
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
-use rayon::prelude::*;
+//use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 // This protocol is based on the NIZK protocol in https://eprint.iacr.org/2018/057.pdf
 // for parameters = e = N, m2 = 11, alpha = 6370 see https://eprint.iacr.org/2018/987.pdf 6.2.3
@@ -86,7 +87,7 @@ impl NICorrectKeyProof {
         let gcd_test = alpha_primorial.gcd(&ek.n);
 
         let derived_rho_vec = (0..M2)
-            .into_par_iter()
+            .into_iter()
             .map(|i| BigInt::mod_pow(&self.sigma_vec[i], &ek.n, &ek.n))
             .collect::<Vec<BigInt>>();
 

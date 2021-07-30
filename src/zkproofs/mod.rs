@@ -10,7 +10,7 @@
 
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
-
+use std::prelude::v1::*;
 mod zero_enc_proof;
 pub use self::zero_enc_proof::*;
 

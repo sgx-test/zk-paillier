@@ -10,6 +10,7 @@
 
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
+use std::prelude::v1::*;
 use std::borrow::Borrow;
 use std::error::Error;
 use std::fmt;
@@ -18,7 +19,7 @@ use std::iter;
 use curv::arithmetic::traits::*;
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
-use rayon::prelude::*;
+//use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 const STATISTICAL_ERROR_FACTOR: usize = 40;
@@ -90,12 +91,12 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         // Compute challenges in the form of n-powers
 
         let s: Vec<_> = (0..STATISTICAL_ERROR_FACTOR)
-            .into_par_iter()
+            .into_iter()
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
         let sn: Vec<_> = s
-            .par_iter()
+            .iter()
             .map(|si| BigInt::mod_pow(si, &ek.n, &ek.n))
             .collect();
 
@@ -103,20 +104,20 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         // TODO[Morten] introduce new proof type for this that can be used independently?
 
         let r: Vec<_> = (0..STATISTICAL_ERROR_FACTOR)
-            .into_par_iter()
+            .into_iter()
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
         let rn: Vec<_> = r
-            .par_iter()
+            .iter()
             .map(|ri| BigInt::mod_pow(ri, &ek.n, &ek.n))
             .collect();
 
         let e = compute_digest(iter::once(&ek.n).chain(&sn).chain(&rn));
 
         let z: Vec<_> = r
-            .par_iter()
-            .zip(s.par_iter())
+            .iter()
+            .zip(s.iter())
             .map(|(ri, si)| (ri * BigInt::mod_pow(si, &e, &ek.n)) % &ek.n)
             .collect();
 
@@ -135,14 +136,14 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         // check sn co-prime with n
         fail = challenge
             .sn
-            .par_iter()
+            .iter()
             .any(|sni| BigInt::egcd(&dk_n, sni).0 != BigInt::one())
             || fail;
 
         // check z co-prime with n
         fail = challenge
             .z
-            .par_iter()
+            .iter()
             .any(|zi| BigInt::egcd(&dk_n, zi).0 != BigInt::one())
             || fail;
 
@@ -152,8 +153,8 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         let phimine = &phi - (&challenge.e % &phi);
         let rn: Vec<_> = challenge
             .z
-            .par_iter()
-            .zip(challenge.sn.par_iter())
+            .iter()
+            .zip(challenge.sn.iter())
             .map(|(zi, sni)| {
                 let zn = BigInt::mod_pow(zi, &dk_n, &dk_n);
                 let snphi = BigInt::mod_pow(sni, &phimine, &dk_n);
@@ -163,7 +164,7 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
 
         // check rn co-prime with n
         fail = rn
-            .par_iter()
+            .iter()
             .any(|rni| BigInt::egcd(&dk_n, rni).0 != BigInt::one())
             || fail;
 
