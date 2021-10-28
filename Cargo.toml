@@ -30,7 +30,7 @@ curv = {  git = "https://github.com/sgx-test/curv-sgx", version = "0.7", branch 
 
 [dependencies.paillier]
 #package = "kzen-paillier"
-branch = "0.3.10-sgx"
+branch = "0.3.10-sgx-sgx-gmp"
 git = "https://github.com/sgx-test/rust-paillier-sgx"
 #default-features = false
 
