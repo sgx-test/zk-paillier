@@ -23,7 +23,7 @@ rayon = "1.1"
 bit-vec = "0.6"
 sha2 = "0.8.0"
 digest = "0.8.1"
-curv = { git = "https://github.com/sgx-test/curv-sgx", branch = "0.7.0-sgx-struct", version = "0.7", default-features = false, features = ["num-bigint"] }
+curv = { git = "https://github.com/sgx-test/curv-sgx", branch = "0.7.0-sgx-struct", version = "0.7", default-features = false }
 
 [dependencies.paillier]
 git = "https://github.com/sgx-test/rust-paillier-sgx"
@@ -35,7 +35,7 @@ default-features = false
 criterion = "0.3"
 
 [features]
-default = ["curv/num-bigint"]
+default = ["curv/rust-gmp-kzen"]
 
 [[bench]]
 name = "all"
