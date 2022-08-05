@@ -17,7 +17,7 @@ categories = ["cryptography"]
 crate-type = ["lib"]
 
 [dependencies]
-rand = "0.6"
+rand = "0.7.3"
 serde = { version = "1.0", features = ["derive"] }
 rayon = "1.1"
 bit-vec = "0.6"
@@ -36,6 +36,7 @@ criterion = "0.3"
 
 [features]
 default = ["curv/rust-gmp-kzen"]
+wasm = ["rand/wasm-bindgen"]
 
 [[bench]]
 name = "all"

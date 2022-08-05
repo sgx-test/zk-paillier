@@ -22,7 +22,8 @@ use curv::BigInt;
 use paillier::EncryptWithChosenRandomness;
 use paillier::Paillier;
 use paillier::{EncryptionKey, Randomness, RawCiphertext, RawPlaintext};
-use rand::prelude::*;
+use rand::RngCore;
+#[cfg(not(feature = "wasm"))]
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -83,9 +84,18 @@ pub struct Commitment(BigInt);
 
 impl ChallengeBits {
     fn sample(big_length: usize) -> ChallengeBits {
-        let mut rng = thread_rng();
         let mut bytes: Vec<u8> = vec![0; big_length / 8];
-        rng.fill_bytes(&mut bytes);
+        #[cfg(not(feature = "wasm"))]
+        {
+            let mut rng = rand::thread_rng();
+            rng.fill_bytes(&mut bytes);
+        }
+        #[cfg(feature = "wasm")]
+        {
+            use rand::rngs::OsRng;
+            let mut rng = OsRng;
+            rng.fill_bytes(&mut bytes);
+        }
         ChallengeBits(bytes)
     }
 }
@@ -173,33 +183,61 @@ impl RangeProofTrait for RangeProof {
         let range_scaled_third = range.div_floor(&BigInt::from(3));
         let range_scaled_two_thirds = BigInt::from(2) * &range_scaled_third;
 
+        #[cfg(not(feature = "wasm"))]
         let mut w1: Vec<_> = (0..error_factor)
             .into_par_iter()
             .map(|_| BigInt::sample_range(&range_scaled_third, &range_scaled_two_thirds))
             .collect();
-
+        #[cfg(not(feature = "wasm"))]
         let mut w2: Vec<_> = w1.par_iter().map(|x| x - &range_scaled_third).collect();
+        #[cfg(feature = "wasm")]
+        let mut w1: Vec<_> = (0..error_factor)
+            .into_iter()
+            .map(|_| BigInt::sample_range(&range_scaled_third, &range_scaled_two_thirds))
+            .collect();
+        #[cfg(feature = "wasm")]
+        let mut w2: Vec<_> = w1.iter().map(|x| x - &range_scaled_third).collect();
 
         // with probability 1/2 switch between w1i and w2i
         for i in 0..error_factor {
             // TODO[Morten] need secure randomness?
-            if random() {
+            #[cfg(feature = "wasm")]
+            {
+                use rand::rngs::OsRng;
+                let mut rng = OsRng;
+                let mut rt = [0u8; 1];
+                rng.fill_bytes(&mut rt);
+                if rt[0] % 2 == 0 {
+                    mem::swap(&mut w2[i], &mut w1[i]);
+                }
+            }
+            #[cfg(not(feature = "wasm"))]
+            if rand::random() {
                 mem::swap(&mut w2[i], &mut w1[i]);
             }
         }
 
-        let r1: Vec<_> = (0..error_factor)
-            .into_par_iter()
+        #[cfg(not(feature = "wasm"))]
+        let r1_iter = (0..error_factor).into_par_iter();
+        #[cfg(feature = "wasm")]
+        let r1_iter = (0..error_factor).into_iter();
+        let r1: Vec<_> = r1_iter
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
-        let r2: Vec<_> = (0..error_factor)
-            .into_par_iter()
+        #[cfg(not(feature = "wasm"))]
+        let r2_iter = (0..error_factor).into_par_iter();
+        #[cfg(feature = "wasm")]
+        let r2_iter = (0..error_factor).into_iter();
+        let r2: Vec<_> = r2_iter
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
-        let c1: Vec<_> = w1
-            .par_iter()
+        #[cfg(not(feature = "wasm"))]
+        let c1_iter = w1.par_iter();
+        #[cfg(feature = "wasm")]
+        let c1_iter = w1.iter();
+        let c1: Vec<_> = c1_iter
             .zip(&r1)
             .map(|(wi, ri)| {
                 Paillier::encrypt_with_chosen_randomness(
@@ -212,8 +250,11 @@ impl RangeProofTrait for RangeProof {
             })
             .collect();
 
-        let c2: Vec<_> = w2
-            .par_iter()
+        #[cfg(not(feature = "wasm"))]
+        let c2_iter = w2.par_iter();
+        #[cfg(feature = "wasm")]
+        let c2_iter = w2.iter();
+        let c2: Vec<_> = c2_iter
             .zip(&r2)
             .map(|(wi, ri)| {
                 Paillier::encrypt_with_chosen_randomness(
@@ -259,8 +300,11 @@ impl RangeProofTrait for RangeProof {
         let range_scaled_third: BigInt = range.div_floor(&BigInt::from(3));
         let range_scaled_two_thirds = BigInt::from(2) * &range_scaled_third;
         let bits_of_e = BitVec::from_bytes(&e.0);
-        let reponses: Vec<_> = (0..error_factor)
-            .into_par_iter()
+        #[cfg(not(feature = "wasm"))]
+        let iter = (0..error_factor).into_par_iter();
+        #[cfg(feature = "wasm")]
+        let iter = (0..error_factor).into_iter();
+        let reponses: Vec<_> = iter
             .map(|i| {
                 let ei = bits_of_e[i];
                 if !ei {
@@ -307,8 +351,11 @@ impl RangeProofTrait for RangeProof {
         let bits_of_e = BitVec::from_bytes(&e.0);
         let responses = &proof.0;
 
-        let verifications: Vec<bool> = (0..error_factor)
-            .into_par_iter()
+        #[cfg(not(feature = "wasm"))]
+        let iter = (0..error_factor).into_par_iter();
+        #[cfg(feature = "wasm")]
+        let iter = (0..error_factor).into_iter();
+        let verifications: Vec<bool> = iter
             .map(|i| {
                 let ei = bits_of_e[i];
                 let response = &responses[i];
