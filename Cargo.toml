@@ -36,7 +36,8 @@ criterion = "0.3"
 
 [features]
 default = ["curv/rust-gmp-kzen"]
-wasm = ["rand/wasm-bindgen"]
+parallel = []
+wasm = ["rand/wasm-bindgen", "curv/big-num"]
 
 [[bench]]
 name = "all"

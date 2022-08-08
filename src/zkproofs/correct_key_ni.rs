@@ -16,7 +16,7 @@ use std::ops::Shl;
 use curv::arithmetic::traits::*;
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
-#[cfg(not(feature = "wasm"))]
+#[cfg(feature = "parallel")]
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 // This protocol is based on the NIZK protocol in https://eprint.iacr.org/2018/057.pdf
@@ -86,9 +86,9 @@ impl NICorrectKeyProof {
         let alpha_primorial: BigInt = BigInt::from_str_radix(&P, 10).unwrap();
         let gcd_test = alpha_primorial.gcd(&ek.n);
 
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = (0..M2).into_par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = (0..M2).into_iter();
         let derived_rho_vec = iter
             .map(|i| BigInt::mod_pow(&self.sigma_vec[i], &ek.n, &ek.n))

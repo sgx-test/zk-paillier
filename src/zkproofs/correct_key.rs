@@ -18,7 +18,7 @@ use std::iter;
 use curv::arithmetic::traits::*;
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
-#[cfg(not(feature = "wasm"))]
+#[cfg(feature = "parallel")]
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -90,17 +90,17 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
     fn challenge(ek: &EncryptionKey) -> (Challenge, VerificationAid) {
         // Compute challenges in the form of n-powers
 
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = (0..STATISTICAL_ERROR_FACTOR).into_par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = (0..STATISTICAL_ERROR_FACTOR).into_iter();
         let s: Vec<_> = iter
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = s.par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = s.iter();
         let sn: Vec<_> = iter
             .map(|si| BigInt::mod_pow(si, &ek.n, &ek.n))
@@ -109,17 +109,17 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         // Compute non-interactive proof of knowledge of the n-roots in the above
         // TODO[Morten] introduce new proof type for this that can be used independently?
 
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = (0..STATISTICAL_ERROR_FACTOR).into_par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = (0..STATISTICAL_ERROR_FACTOR).into_iter();
         let r: Vec<_> = iter
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = r.par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = r.iter();
         let rn: Vec<_> = iter
             .map(|ri| BigInt::mod_pow(ri, &ek.n, &ek.n))
@@ -127,9 +127,9 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
 
         let e = compute_digest(iter::once(&ek.n).chain(&sn).chain(&rn));
 
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = r.par_iter().zip(s.par_iter());
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = r.iter().zip(s.iter());
         let z: Vec<_> = iter
             .map(|(ri, si)| (ri * BigInt::mod_pow(si, &e, &ek.n)) % &ek.n)
@@ -148,18 +148,18 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         let mut fail = false; // !!! Do not change
         let dk_n = &dk.q * &dk.p;
         // check sn co-prime with n
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = challenge.sn.par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let mut iter = challenge.sn.iter();
         fail = iter
             .any(|sni| BigInt::egcd(&dk_n, sni).0 != BigInt::one())
             || fail;
 
         // check z co-prime with n
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = challenge.z.par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let mut iter = challenge.z.iter();
         fail = iter
             .any(|zi| BigInt::egcd(&dk_n, zi).0 != BigInt::one())
@@ -169,9 +169,9 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
         let phi = (dk.q.clone() - 1) * (dk.p.clone() - 1);
         // TODO: make dk.phi public
         let phimine = &phi - (&challenge.e % &phi);
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = challenge.z.par_iter().zip(challenge.sn.par_iter());
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let iter = challenge.z.iter().zip(challenge.sn.iter());
         let rn: Vec<_> = iter
             .map(|(zi, sni)| {
@@ -182,9 +182,9 @@ impl CorrectKeyTrait<EncryptionKey, DecryptionKey> for CorrectKey {
             .collect();
 
         // check rn co-prime with n
-        #[cfg(not(feature = "wasm"))]
+        #[cfg(feature = "parallel")]
         let iter = rn.par_iter();
-        #[cfg(feature = "wasm")]
+        #[cfg(not(feature = "parallel"))]
         let mut iter = rn.iter();
         fail = iter
             .any(|rni| BigInt::egcd(&dk_n, rni).0 != BigInt::one())
