@@ -23,11 +23,11 @@ rayon = "1.1"
 bit-vec = "0.6"
 sha2 = "0.8.0"
 digest = "0.8.1"
-curv = { git = "https://github.com/sgx-test/curv-sgx", branch = "0.7.0-sgx-struct", version = "0.7", default-features = false }
+curv = { git = "https://github.com/sgx-test/curv-sgx", branch = "0.7.0-generic", version = "0.7", default-features = false }
 
 [dependencies.paillier]
 git = "https://github.com/sgx-test/rust-paillier-sgx"
-branch = "0.3.10-sgx-struct"
+branch = "0.3.10-generic"
 #tag = "v0.3.10"
 default-features = false
 
