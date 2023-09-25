@@ -10,6 +10,8 @@
 
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
+#![allow(non_snake_case)]
+#![allow(dead_code)]
 
 mod zero_enc_proof;
 pub use self::zero_enc_proof::*;
@@ -51,6 +53,9 @@ pub use self::range_proof_ni::RangeProofError;
 pub use self::range_proof_ni::RangeProofNi;
 
 mod correct_message;
+mod blum_modules_proof;
+mod no_small_factors;
+
 pub use self::correct_message::CorrectMessageProof;
 pub use self::correct_message::CorrectMessageProofError;
 

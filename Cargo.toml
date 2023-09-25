@@ -31,6 +31,19 @@ branch = "0.3.10-generic"
 #tag = "v0.3.10"
 default-features = false
 
+[dependencies.openssl]
+git = "https://github.com/sfackler/rust-openssl"
+
+[dependencies.num-bigint]
+version = "0.4"
+features = ["serde"]
+
+[dependencies.num-integer]
+version = "0.1"
+
+[dependencies.num-traits]
+version = "0.2"
+
 [dev-dependencies]
 criterion = "0.3"
 
