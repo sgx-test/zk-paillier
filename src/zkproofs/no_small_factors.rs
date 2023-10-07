@@ -357,8 +357,7 @@ mod tests {
 
         let P = dk.p;
         let Q = dk.q;
-        // let N = ek.n;
-        let N = ek.n + BigInt::from_str_radix("7", 10).unwrap();
+        let N = ek.n;
 
         let set_up: NoSmallFactorSetUp = NoSmallFactorSetUp {
             n_tilde: N_tilde,

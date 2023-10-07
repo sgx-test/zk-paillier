@@ -79,7 +79,7 @@ impl BlumModulesProof {
         })
     }
 
-    pub fn verify(self, n: BigInt) -> bool {
+    pub fn verify(&self, n: BigInt) -> bool {
         if self.x_arr.len() < ITERATIONS_BLUM_INT_PROOF {
             return false;
         }
