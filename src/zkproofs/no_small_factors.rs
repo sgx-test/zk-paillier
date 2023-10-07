@@ -24,7 +24,7 @@ pub struct NoSmallFactorStatement {
     pub varepsilon: usize,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NoSmallFactorProof {
     pub P_: BigInt,
     pub Q_: BigInt,
@@ -357,7 +357,8 @@ mod tests {
 
         let P = dk.p;
         let Q = dk.q;
-        let N = ek.n;
+        // let N = ek.n;
+        let N = ek.n + BigInt::from_str_radix("7", 10).unwrap();
 
         let set_up: NoSmallFactorSetUp = NoSmallFactorSetUp {
             n_tilde: N_tilde,
