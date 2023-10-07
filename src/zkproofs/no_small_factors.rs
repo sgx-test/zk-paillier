@@ -5,27 +5,27 @@ use serde::{Deserialize, Serialize};
 use std::iter;
 
 #[derive(Clone, Deserialize, Serialize)]
-struct NoSmallFactorSetUp {
+pub struct NoSmallFactorSetUp {
     pub n_tilde: BigInt,
     pub s: BigInt,
     pub t: BigInt,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-struct NoSmallFactorWitness {
+pub struct NoSmallFactorWitness {
     pub p_: BigInt,
     pub q_: BigInt,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-struct NoSmallFactorStatement {
+pub struct NoSmallFactorStatement {
     pub n0: BigInt,
     pub l: usize,
     pub varepsilon: usize,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
-struct NoSmallFactorProof {
+pub struct NoSmallFactorProof {
     pub P_: BigInt,
     pub Q_: BigInt,
     pub A_: BigInt,
