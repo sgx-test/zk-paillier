@@ -33,6 +33,7 @@ default-features = false
 
 [dependencies.openssl]
 version = "0.10.57"
+features = ["vendored"]
 
 [dependencies.num-bigint]
 version = "0.4"
