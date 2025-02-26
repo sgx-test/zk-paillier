@@ -373,4 +373,28 @@ mod tests {
         let proof = NoSmallFactorProof::prove(&set_up, &statement, &witness);
         assert!(proof.verify(&set_up, &statement));
     }
+
+    #[test]
+    fn test_no_small_factors_mpc_safe_prime() {
+        let (N_tilde, h1, h2, _xhi, _xhi_inv) = generate_h1_h2_N_tilde();
+        let (ek, dk) = Paillier::keypair_safe_primes().keys();
+        
+        let P = dk.p;
+        let Q = dk.q;
+        let N = ek.n;
+
+        let set_up: NoSmallFactorSetUp = NoSmallFactorSetUp {
+            n_tilde: N_tilde,
+            s: h1,
+            t: h2,
+        };
+        let statement: NoSmallFactorStatement = NoSmallFactorStatement {
+            n0: N,
+            l: 256,
+            varepsilon: 512,
+        };
+        let witness: NoSmallFactorWitness = NoSmallFactorWitness { p_: P, q_: Q };
+        let proof = NoSmallFactorProof::prove(&set_up, &statement, &witness);
+        assert!(proof.verify(&set_up, &statement));
+    }
 }
