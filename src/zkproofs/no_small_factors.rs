@@ -37,7 +37,7 @@ pub struct NoSmallFactorProof {
     pub w1_: BigInt,
     pub w2_: BigInt,
     pub v_: BigInt,
-    salt: String,
+    pub salt: String,
 }
 
 impl NoSmallFactorProof {
