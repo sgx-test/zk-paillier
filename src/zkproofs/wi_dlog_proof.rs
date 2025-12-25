@@ -67,8 +67,14 @@ impl CompositeDLogProof {
         assert!(statement.N > BigInt::from(2).pow(K as u32));
 
         //test that g, ni in multiplecative group Z_N*
-        assert_eq!(statement.g.gcd(&statement.N), BigInt::one());
-        assert_eq!(statement.ni.gcd(&statement.N), BigInt::one());
+        // assert_eq!(statement.g.gcd(&statement.N), BigInt::one());
+        // assert_eq!(statement.ni.gcd(&statement.N), BigInt::one());
+        if statement.g.gcd(&statement.N) != BigInt::one() {
+            return Err(ProofError);
+        }
+        if statement.ni.gcd(&statement.N) != BigInt::one() {
+            return Err(ProofError);
+        }
 
         let e = super::compute_digest(
             iter::once(&self.x)
